@@ -1,5 +1,4 @@
-
-FROM amazonlinux:latest
+FROM amazonlinux
 
 MAINTAINER hello@saiprakash
 
@@ -10,7 +9,7 @@ WORKDIR /opt/tomcat
 # Install necessary packages
 RUN yum install -y tar wget gzip
 
-# Download Apache Tomcat 9.0.86 source code
+# Download Apache Tomcat 9.0.87 source code
 RUN wget https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.87/bin/apache-tomcat-9.0.87.tar.gz
 
 # Unzip Apache Tomcat 9 source code and rename directory
@@ -29,5 +28,11 @@ EXPOSE 8080
 ENV CATALINA_HOME /opt/tomcat/tomcat9
 ENV PATH $CATALINA_HOME/bin:$PATH
 
-# Start Tomcat using catalina.sh
-CMD ["catalina.sh" , "run"]
+# Copy myapp.war file to Tomcat webapps directory
+COPY myapp.war /opt/tomcat/tomcat9/webapps/
+
+# Give execute permissions to Tomcat shell scripts
+RUN chmod +x /opt/tomcat/tomcat9/bin/*.sh
+
+# Start Tomcat using startup.sh
+CMD ["sh", "-c", "$CATALINA_HOME/bin/startup.sh run"]

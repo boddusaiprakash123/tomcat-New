@@ -1,0 +1,10 @@
+version: 0.0
+Resources:
+  - TargetService:
+      Type: AWS::EC2::Instance
+      Properties:
+        InstanceId: i-0753f5adac5c0f4d8
+        LoadBalancerInfo:
+          ContainerName: "tomcat"
+          ContainerPort: 8080
+

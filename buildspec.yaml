@@ -1,0 +1,37 @@
+version: 0.2
+phases:
+  install:
+    commands:
+      - REPOSITORY_URI=851725608477.dkr.ecr.ap-south-1.amazonaws.com/tomcat
+      - CODEBUILD_BUILD_NUMBER=Latest
+  pre_build:
+    commands:
+      - echo Logging starting build ...
+      - aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 851725608477.dkr.ecr.ap-south-1.amazonaws.com
+  build:
+    commands:
+      - echo Build started on `date`
+      - echo Building the tomcat  Docker image...
+      - docker build -t $REPOSITORY_URI:$CODEBUILD_BUILD_NUMBER .
+  post_build:
+    commands:
+      - echo Build completed on `date`
+      - echo Pushing the Docker image...
+      - docker push $REPOSITORY_URI:$CODEBUILD_BUILD_NUMBER
+      - echo Writing image definitions file...
+      - printf '[{"name":"tomcat","imageUri":"%s"}]' $REPOSITORY_URI:$CODEBUILD_BUILD_NUMBER > imagedefinitions.json
+      - printf '{"ImageURI":"%s"}' $REPOSITORY_URI:$CODEBUILD_BUILD_NUMBER > imageDetail.json
+artifacts:
+  files:
+    - 'imagedefinitions.json'
+    - 'appspec.yaml'
+    - 'taskdef.json'
+    - 'imageDetail.json'
+  secondary-artifacts:
+    DefinitionArtifact:
+      files:
+        - appspec.yaml
+        - taskdef.json
+    ImageArtifact:
+      files:
+        - imageDetail.json
